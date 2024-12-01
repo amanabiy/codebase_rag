@@ -1,0 +1,4 @@
+__pycache__
+.env
+local_repos
+temp_files
