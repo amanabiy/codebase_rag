@@ -61,7 +61,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "pre-push": "jest"
+      "pre-push": "jest --passWithNoTests"
     }
   },
   "lint-staged": {
