@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Select, Input, Spin } from 'antd';
+import { useToast } from '@apideck/components';
+import { useMessages } from 'utils/useMessages';
 
 // Define a type for the repository
 type Repository = {
@@ -12,9 +14,9 @@ const LeftBar = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRepo, setSelectedRepo] = useState('');
   const [repoUrl, setRepoUrl] = useState('');
-  const [submittedRepo, setSubmittedRepo] = useState<Repository | null>(null);
+  const { initializeChat, selectedRepo, setSelectedRepo } = useMessages()
+  const { addToast } = useToast()
 
   useEffect(() => {
     const fetchRepositories = async () => {
@@ -26,7 +28,9 @@ const LeftBar = () => {
         const data = await response.json();
         setRepositories(data);
       } catch (error: any) {
-        setError(error.message);
+        console.log(error)
+        addToast({ title: `Couldn't fetch repos ${error.message}`, type: 'error' })
+        setRepositories([])
       } finally {
         setLoading(false);
       }
@@ -39,7 +43,6 @@ const LeftBar = () => {
     const repoToSubmit = selectedRepo || repoUrl;
     if (repoToSubmit) {
       setLoading(true);
-      setRepoUrl('');
       try {
         const response = await fetch('http://127.0.0.1:5000/clone', {
           method: 'POST',
@@ -66,15 +69,21 @@ const LeftBar = () => {
               setLoading(false);
             }
         };
+        console.log("here", response)
         fetchRepositories()
-        setSubmittedRepo({ url_path: repoUrl, name: repoToSubmit });
-      } catch (error: any) {
-        setError(error.message);
+        setSelectedRepo(repoUrl)
+        setRepoUrl('');
+    } catch (error: any) {
+      addToast({ title: 'An error occurred', type: 'error' })
       } finally {
         setLoading(false);
       }
     }
   };
+
+  useEffect(() => {
+    initializeChat(selectedRepo);
+  }, [selectedRepo]);
 
   if (loading) {
     return (
@@ -92,14 +101,14 @@ const LeftBar = () => {
   }
 
   return (
-    <div className="repository-list ml-4 mt-10">
+    <div className="repository-list ml-4 mt-10" style={{ width: '300px' }}>
       <h2 className="text-xl font-bold mb-4 text-center">Repositories</h2>
       {selectedRepo && (
-        <div className="selected-repo p-3 rounded mb-4">
-          <small>Chatting With</small><div className="font-semibold">{selectedRepo}</div>
+        <div className="flex flex-col selected-repo p-3 rounded mb-4">
+          <small>Chatting With</small><small className="font-semibold">{selectedRepo}</small>
         </div>
       )}
-      <div className="mb-4 flex flex-col items-center">
+      <div className="mb-4 flex flex-col items-center ">
         {repositories.length === 0 ? (
           <div className="text-red-500 mb-2">No repositories found.</div>
         ) : (
@@ -116,7 +125,8 @@ const LeftBar = () => {
                 label: repo.url_path,
               }))}
             className="w-full mb-4"
-            style={{ width: '100%' }}
+            style={{ width: '300px' }}
+            dropdownStyle={{ width: 'auto', backgroundColor: '#f0f0f0' }}
           />
         )}
         <hr className="my-4 border-t border-gray-200" />
@@ -129,7 +139,7 @@ const LeftBar = () => {
         />
         <button 
           onClick={handleSubmit}
-          className="bg-blue-500 text-white p-2 rounded"
+          className="bg-blue-400 text-white p-2 rounded w-full"
         >
           Submit
         </button>

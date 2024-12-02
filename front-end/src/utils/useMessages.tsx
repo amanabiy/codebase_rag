@@ -6,6 +6,9 @@ interface ContextProps {
   messages: ChatCompletionRequestMessage[]
   addMessage: (content: string) => Promise<void>
   isLoadingAnswer: boolean
+  selectedRepo: string
+  setSelectedRepo: (repo: string) => void
+  initializeChat: (s: string) => void
 }
 
 const ChatsContext = createContext<Partial<ContextProps>>({})
@@ -14,22 +17,9 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const { addToast } = useToast()
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const [isLoadingAnswer, setIsLoadingAnswer] = useState(false)
+  const [selectedRepo, setSelectedRepo] = useState('')
 
   useEffect(() => {
-    const initializeChat = () => {
-      const systemMessage: ChatCompletionRequestMessage = {
-        role: 'system',
-        content: 'You are ChatGPT, a large language model trained by OpenAI.'
-      }
-      const welcomeMessage: ChatCompletionRequestMessage = {
-        role: 'assistant',
-        content: 'Hi, How can I help you today?'
-      }
-      setMessages([systemMessage, welcomeMessage])
-    }
-
-    // When no messages are present, we initialize the chat the system message and the welcome message
-    // We hide the system message from the user in the UI
     if (!messages?.length) {
       initializeChat()
     }
@@ -56,7 +46,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({
           "query": content,
-          "repo_id": "your_repository_id_here",
+          "repo_url": selectedRepo,
           "chat_history": messages
         }),
       })
@@ -82,13 +72,28 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const initializeChat = (repo: string = '') => {
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: 'system',
+      content: 'You are ChatGPT, a large language model trained by OpenAI.'
+    }
+    let mess = `I can help you with question in repo ${repo}`
+    if (repo == '')
+      mess = ''
+    const welcomeMessage: ChatCompletionRequestMessage = {
+      role: 'assistant',
+      content: `Hi, How can I help you today? ${mess}`
+    }
+    setMessages([systemMessage, welcomeMessage])
+  }
+
   return (
-    <ChatsContext.Provider value={{ messages, addMessage, isLoadingAnswer }}>
+    <ChatsContext.Provider value={{ messages, addMessage, isLoadingAnswer, selectedRepo, setSelectedRepo, initializeChat }}>
       {children}
     </ChatsContext.Provider>
   )
 }
 
 export const useMessages = () => {
-  return useContext(ChatsContext) as ContextProps
+  return useContext(ChatsContext) as ContextProps & { initializeChat: () => void }
 }
