@@ -32,9 +32,9 @@ def clone_repo(repo_url):
         # subprocess.run(['git', 'clone', repo_url, clone_path], check=True)  # Ensure it raises an error if the command fails
         
         # Initialize StorageManager for Repository
-        # storage_manager = StorageManager(engine, Repository)
+        storage_manager = StorageManager(engine, Repository)
         new_repo = Repository(name=repo_name, local_path=clone_path, url_path=repo_url)
-        # storage_manager.add(new_repo)  # Save the repository information
+        new_repo = Repository(**storage_manager.add(new_repo))  # Save the repository information
         # print("clone", new_repo)
         return new_repo
     except Exception as e:
@@ -111,16 +111,8 @@ def create_vector_store_from_repo(repo):
     pinecone_api_key = os.getenv("PINECONE_API_KEY")
     print(pinecone_api_key)
     
-    # os.environ['PINECONE_API_KEY'] = pinecone_api_key
-
-    # # Initialize Pinecone
-    # pc = Pinecone(api_key=pinecone_api_key,)
-
-    # # Connect to your Pinecone index
-    # pinecone_index = pc.Index("codebase-rag")
     vectorstore = PineconeVectorStore(index_name="codebase-rag", embedding=HuggingFaceEmbeddings())
     
-
     documents = []
     file_content = get_main_files_content(repo.local_path)
 
@@ -163,7 +155,7 @@ def clone_repository():
         return jsonify({'error': 'Repository URL is required'}), 400  # Return error if URL is missing
     
     repo = clone_repo(repo_url)  # Call the clone_repo function with the provided URL
-    print("repossss", repo)
+    print(repo)
     vectorstore = create_vector_store_from_repo(repo)  # Call the new function to create the vector store
     
     return jsonify({'message': 'Repository cloned successfully'}), 201  # Return success message
@@ -173,7 +165,7 @@ def search_repositories():
     search_term = request.args.get('query')  # Get the search term from query parameters
     
     if not search_term:
-        return jsonify({'error': 'Search term is required'}), 400  # Return error if search term is missing
+        return get_repositories()  # Return error if search term is missing
     
     # Initialize StorageManager for Repository
     storage_manager = StorageManager(engine, Repository)
