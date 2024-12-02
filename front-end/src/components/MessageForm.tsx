@@ -31,7 +31,7 @@ const MessageForm = () => {
             onChange={(e: any) => setContent(e.target.value)}
             onKeyDown={(e: any) => handleSubmit(e)}
           />
-          <Button className="absolute right-3 bottom-3 bg-blue-600" type="submit" size="small">
+          <Button className="bg-blue-500 absolute right-3 bottom-3 " type="submit" size="small">
             Send
             <svg
               xmlns="http://www.w3.org/2000/svg"

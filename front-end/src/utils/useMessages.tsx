@@ -77,8 +77,10 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       role: 'system',
       content: 'You are ChatGPT, a large language model trained by OpenAI.'
     }
-    let mess = `I can help you with question in repo ${repo}`
-    if (repo == '')
+    const repoName = repo?.split('/').pop()?.replace('.git', '') ?? '';
+    let mess = `
+Hello! How can I assist you today? I can help you understand, debug, and more with the ${repoName} repository.`
+    if (repoName == '')
       mess = ''
     const welcomeMessage: ChatCompletionRequestMessage = {
       role: 'assistant',
