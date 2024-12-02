@@ -27,39 +27,36 @@ This project involves creating an AI expert over a codebase using Retrieval-Augm
    cd <repository-directory>
    ```
 
-python3 -m venv venv
-source venv/bin/activate
-pip freeze > requirements.txt
+2. Set up a virtual environment and activate it:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-2. Install the required packages:
+3. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up your Pinecone account and initialize the database.
+4. Set up your Pinecone account and initialize the database.
 
-4. Run the Flask application:
+5. Create a `.env` file in the root directory of your project and add the following environment variables:
+   ```env
+   PINECONE_API_KEY=
+   GROQ_API_KEY=
+   ```
+
+6. Run the Flask application:
    ```bash
    python app.py
    ```
 
-5. Access the web app at `http://localhost:5000`.
-
-## Additional Challenges
-
-If you finish early, consider implementing the following features:
-
-- **Multimodal RAG**: Add support for image uploads when chatting with the codebase.
-- **Multiple Codebases**: Allow users to select different codebases to chat with.
-- **Webhook Integration**: Update the Pinecone index automatically when new commits are pushed to the repository.
-- **Simultaneous Chats**: Enable chatting with multiple codebases at the same time.
+7. Access the web app at [http://localhost:5000](http://localhost:5000).
 
 ## Resources
 
-- [Streamlit Documentation](https://docs.streamlit.io/)
-- [AI Chatbot Template on Vercel](https://vercel.com/templates)
-- [Example Web App](<example-url>)
-- [RAG Workshop Recording](<recording-url>)
+- [Getting Started With Embeddings](https://huggingface.co/blog/getting-started-with-embeddings)
+- [Article on RAG on a code base](https://blog.lancedb.com/rag-codebase-1/)
 
 ## License
 
