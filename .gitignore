@@ -8,8 +8,6 @@ repos.db
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-__tests__
-
 # dependencies
 node_modules
 .pnp
