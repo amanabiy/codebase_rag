@@ -20,20 +20,28 @@ def get_local_path(github_username, repo_name):
     return os.path.join('temp_files/local_repos', f"{github_username}#{repo_name}")
 
 def clone_repo(repo_url):
+    storage_manager = StorageManager(engine, Repository)
+    repo = storage_manager.get_by_column('url_path', repo_url)
+    if repo:
+        return repo_url
     # Create local_repos directory if it doesn't exist
-    os.makedirs('local_repos', exist_ok=True)
+    os.makedirs('./temp_files/local_repos', exist_ok=True)
     
     try:
         # Clone the repository
         repo_name = repo_url.split('/')[-1].replace('.git', '')
         github_username = repo_url.split('/')[-2]
         clone_path = get_local_path(github_username, repo_name)
-        
-        # subprocess.run(['git', 'clone', repo_url, clone_path], check=True)  # Ensure it raises an error if the command fails
+        print("path", repo_url, clone_path)
+        if os.path.exists(clone_path):
+            print(f"Repository already exists at {clone_path}. Skipping clone.")
+            return Repository(name=repo_name, local_path=clone_path, url_path=repo_url)  # Return existing repository info
+        else:
+            subprocess.run(['git', 'clone', repo_url, clone_path], check=True)  # Ensure it raises an error if the command fails
         
         # Initialize StorageManager for Repository
-        storage_manager = StorageManager(engine, Repository)
         new_repo = Repository(name=repo_name, local_path=clone_path, url_path=repo_url)
+        create_vector_store_from_repo(new_repo)
         new_repo = Repository(**storage_manager.add(new_repo))  # Save the repository information
         # print("clone", new_repo)
         return new_repo
@@ -117,6 +125,11 @@ def create_vector_store_from_repo(repo):
     file_content = get_main_files_content(repo.local_path)
 
     for file in file_content:
+        # Check if the content size exceeds the limit (40960 bytes)
+        if len(file['content'].encode('utf-8')) > 40960:  # Check size in bytes
+            print(f"Skipping file {file['name']} due to size limit.")
+            continue  # Skip appending this document if it exceeds the limit
+        
         doc = Document(
             page_content=f"{file['name']}\n{file['content']}",
             metadata={"source": file['name']}
@@ -153,11 +166,11 @@ def clone_repository():
     
     if not repo_url:
         return jsonify({'error': 'Repository URL is required'}), 400  # Return error if URL is missing
-    
+    print("url", repo_url)
     repo = clone_repo(repo_url)  # Call the clone_repo function with the provided URL
-    print(repo)
-    vectorstore = create_vector_store_from_repo(repo)  # Call the new function to create the vector store
-    
+    # print(repo)
+    # vectorstore = create_vector_store_from_repo(repo)  # Call the new function to create the vector store
+
     return jsonify({'message': 'Repository cloned successfully'}), 201  # Return success message
 
 @codespace_bp.route('/search', methods=['GET'])  # Update route decorators
@@ -169,7 +182,7 @@ def search_repositories():
     
     # Initialize StorageManager for Repository
     storage_manager = StorageManager(engine, Repository)
-    repositories = storage_manager.search(search_term, 'name')  # Search for repositories by name
+    repositories = storage_manager.search(search_term, 'url')  # Search for repositories by name
     
     # Convert the repository objects to a list of dictionaries
     repo_list = [repo.to_dict() for repo in repositories]

@@ -7,6 +7,9 @@ import pinecone
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 from langchain.schema import Document
+from storage.storage import StorageManager  # Import the Repository model and engine
+from storage.setup_db import engine
+from models.repository import Repository
 from git import Repo
 from dotenv import load_dotenv
 
@@ -78,18 +81,15 @@ def perform_rag(query, namespace, stream_response=False):
 def chat():
     data = request.get_json()
     query = data.get("query")
-    repo_id = data.get("repo_id")  # Get the repository ID from the request
+    repo_url = data.get("repo_url")  # Get the repository ID from the request
     chat_history = data.get("chat_history", [])  # Accept chat history from the front-end
     stream_response = data.get("stream_response", False)  # Get the stream_response parameter
 
-    if query:
-        # Append the current query to the chat history
+    storage_manager = StorageManager(engine, Repository)
+    repo = storage_manager.get_by_column('url_path', repo_url)
+    print(repo)
+    if query and repo:
         chat_history.append({"role": "user", "content": query})
-
-        # Return a response based on the stream_response parameter
-        # if stream_response:
-        #     return Response(perform_rag(query, namespace="https://github.com/CoderAgent/SecureAgent", stream_response=stream_response), mimetype='text/event-stream' if stream_response else 'application/json')
-        # else:
-        return jsonify(perform_rag(query, namespace="https://github.com/CoderAgent/SecureAgent", stream_response=stream_response))
+        return jsonify(perform_rag(query, namespace=repo.url_path, stream_response=stream_response))
     else:
         return jsonify({"error": "Query is missing!"}), 400

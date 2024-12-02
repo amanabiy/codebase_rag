@@ -55,3 +55,14 @@ class StorageManager:
             return instance
         finally:
             session.close()  # Ensure the session is closed
+
+    def get_by_column(self, column_name, value):
+        """Retrieve an instance by a specific column value."""
+        print("column", column_name)
+        print("value", value)
+        session = self.get_session()
+        try:
+            instance = session.query(self.model).filter(getattr(self.model, column_name) == value).first()  # Retrieve instance by column value
+            return instance
+        finally:
+            session.close()  # Ensure the session is closed

@@ -8,7 +8,7 @@ def setup_database():
     # Create the directory if it doesn't exist
     os.makedirs('temp_files', exist_ok=True)  # Create the folder
 
-    engine = create_engine('sqlite:///temp_files/ssq.db')
+    engine = create_engine('sqlite:///temp_files/sqlite.db')
     Base.metadata.create_all(engine)  # Create the table if it doesn't exist
     # Add additional setup steps here
     return engine
