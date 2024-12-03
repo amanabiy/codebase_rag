@@ -26,7 +26,14 @@ const LeftBar = () => {
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/repositories`);
+        const response = await fetch(`${BACKEND_URL}/repositories`,
+          {
+            method: 'GET', 
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            }
+          }
+        );
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -62,7 +69,14 @@ const LeftBar = () => {
         setSelectedRepo(repoUrl);
         const fetchRepositories = async () => {
             try {
-              const response = await fetch(`${BACKEND_URL}/repositories`);
+              const response = await fetch(`${BACKEND_URL}/repositories`,
+                {
+                  method: 'GET', 
+                  headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                  }
+                }
+              );
               if (!response.ok) {
                 throw new Error('Network response was not ok');
               }

@@ -1,7 +1,4 @@
 import { useMessages } from 'utils/useMessages'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { remark } from 'remark'
 import { RenderMessage } from './markdown'
 
 const MessagesList = () => {
