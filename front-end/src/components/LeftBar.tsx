@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Select, Input, Spin } from 'antd';
 import { useToast } from '@apideck/components';
 import { useMessages } from 'utils/useMessages';
+import config from '../utils/config';
+// import dotenv from 'dotenv';
+
+// dotenv.config();
 
 // Define a type for the repository
 type Repository = {
@@ -17,11 +21,12 @@ const LeftBar = () => {
   const [repoUrl, setRepoUrl] = useState('');
   const { initializeChat, selectedRepo, setSelectedRepo } = useMessages()
   const { addToast } = useToast()
+  const BACKEND_URL = config.backendUrl;
 
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/repositories');
+        const response = await fetch(`${BACKEND_URL}/repositories`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -44,7 +49,7 @@ const LeftBar = () => {
     if (repoToSubmit) {
       setLoading(true);
       try {
-        const response = await fetch('http://127.0.0.1:5000/clone', {
+        const response = await fetch(`${BACKEND_URL}/clone`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -57,7 +62,7 @@ const LeftBar = () => {
         setSelectedRepo(repoUrl);
         const fetchRepositories = async () => {
             try {
-              const response = await fetch('http://127.0.0.1:5000/repositories');
+              const response = await fetch(`${BACKEND_URL}/repositories`);
               if (!response.ok) {
                 throw new Error('Network response was not ok');
               }

@@ -1,6 +1,7 @@
 import { useToast } from '@apideck/components'
 import { ChatCompletionRequestMessage } from 'openai'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import config from './config'
 
 interface ContextProps {
   messages: ChatCompletionRequestMessage[]
@@ -18,6 +19,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const [isLoadingAnswer, setIsLoadingAnswer] = useState(false)
   const [selectedRepo, setSelectedRepo] = useState('')
+  const BACKEND_URL = config.backendUrl;
 
   useEffect(() => {
     if (!messages?.length) {
@@ -39,7 +41,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
       console.log("message")
       // Send the message to the back-end and get the response
-      const response = await fetch('http://127.0.0.1:5000/chat', { // Adjust the endpoint as necessary
+      const response = await fetch(`${BACKEND_URL}/chat`, { // Adjust the endpoint as necessary
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
