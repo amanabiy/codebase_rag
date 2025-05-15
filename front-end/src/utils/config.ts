@@ -9,7 +9,7 @@ const config: Config = {
     backendUrl: process.env.BACKEND_URL || 'https://codebase-rag-backend.amanabiy.tech/', // Fallback to localhost if not set
 
     // Get the port number from environment variables or use 5000 by default
-    port: parseInt(process.env.REACT_APP_PORT || '5000', 10), // Default to 5000 if not set
+    port: parseInt(process.env.REACT_APP_PORT || '5002', 10), // Default to 5000 if not set
 };
 
 // Export configuration object
